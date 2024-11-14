@@ -21,13 +21,31 @@ Welcome to my project! This repository contains the CI/CD pipeline for my "Hello
 
 - **Clone the Repository**
 
-  - `git clone https://github.com/Shlomiish/Migdal_Project.git`
+```
+  git clone https://github.com/Shlomiish/Migdal_Project.git
+```
 
 - **Configure AWS**
 
-  - `aws configure`
+```
+aws configure
+```
 
 - **Run Terraform**
-  - `Terraform init`
-  - `Terraform plan`
-  - `Terraform apply`
+
+```
+aws configure
+terraform init
+terraform plan
+terraform apply
+```
+
+- **Login to ArgoCD**
+
+```
+export ARGOCD_SERVER=kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'
+
+export ARGO_PWD=kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
+```
