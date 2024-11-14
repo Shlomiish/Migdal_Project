@@ -1,0 +1,170 @@
+pipeline {
+    agent { label 'agent1' }
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('DockerHub_Credentials')
+        DOCKER_IMAGE_NAME = "flask-hello-world"
+        DOCKER_REPO = "shlomi00212"
+        GIT_LAB_CREDENTIALS = credentials('gitlab_user_pass')
+        GITLAB_TOKEN = credentials('gitlab-token')  // Store your GitLab token here
+        K8S_MANIFESTS_REPO_URL = 'http://10.0.3.171/root/manifest_repo.git'
+        APP_REPO_URL = 'http://10.0.3.171/root/app_repo.git'
+        BRANCH_NAME = 'main'
+    }
+
+    stages {
+        stage('Cleanup Start') {
+            steps {
+                script {
+                    sh '''
+                    echo "Pruning unused Docker resources..."
+
+                    # Stop and remove running containers, if any
+                    running_containers=$(sudo docker ps -q)
+                    if [ -n "$running_containers" ]; then
+                        sudo docker stop $running_containers
+                        sudo docker rm $running_containers
+                    fi
+
+                    # Prune unused Docker resources
+                    sudo docker system prune -f
+                    sudo docker image prune -f
+                    '''
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                git credentialsId: GIT_LAB_CREDENTIALS,
+                    url: APP_REPO_URL,
+                    branch: BRANCH_NAME
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh '''
+                    sudo docker build -t flask-hello-world .
+                    '''
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh '''
+                    sudo docker run -d -p 5000:5000 --name hello_world_app flask-hello-world
+                    '''
+                }
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                script {
+                    sh 'sleep 5'
+                    def result = sh script: '''
+                    curl --fail http://localhost:5000/
+                    ''', returnStatus: true
+                    
+                    if (result != 0) {
+                        error("Smoke test failed! Aborting pipeline.")
+                    } else {
+                        echo "Smoke test passed!"
+                    }
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'DockerHub_Credentials',
+                                                    passwordVariable: 'DOCKER_PASSWORD',
+                                                    usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh '''
+                            echo ${DOCKER_PASSWORD} | sudo docker login -u ${DOCKER_USERNAME} --password-stdin
+                            
+                            # Tag the image with repository and build number
+                            sudo docker tag flask-hello-world ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
+                            sudo docker tag flask-hello-world ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:latest
+                            
+                            # Push both tags to Docker Hub
+                            sudo docker push ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
+                            sudo docker push ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:latest
+                            
+                            sudo docker logout
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Checkout K8s Manifests') {
+            steps {
+                script {
+                    // Directly checkout the K8s manifests repository
+                    git credentialsId: GIT_LAB_CREDENTIALS,
+                        url: K8S_MANIFESTS_REPO_URL,
+                        branch: 'main'
+                    
+                    // List the contents of the directory to check if deployment.yml exists
+                    sh 'ls -l'
+                }
+            }
+        }
+
+        stage('Update Deployment YAML') {
+            steps {
+                script {
+                    // Make sure you're in the correct folder where the Kubernetes manifests are stored
+                    // No need to use 'dir' as we're directly in the workspace
+                    sh '''
+                    if [ -f deployment.yml ]; then
+                        # Directly update the image name in deployment.yml using Jenkins variables
+                        sed -i "s|image:.*|image: ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}|" deployment.yml
+                        # Show the updated deployment.yml
+                        cat deployment.yml
+                    else
+                        echo "deployment.yml not found!"
+                        exit 1
+                    fi
+                    '''
+                }
+            }
+        }
+
+        stage('Push Updated Deployment to GitLab') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'gitlab-token', variable: 'GITLAB_TOKEN')]) {
+                        sh '''
+                        git config user.name "root"
+                        git config user.email "shlomi.shosha@gmail.com"
+                        git add deployment.yml
+                        git commit -m "Updated deployment image to ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+
+                        # Push using the token for authentication
+                        git push http://root:${GITLAB_TOKEN}@10.0.3.171/root/manifest_repo.git main
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
