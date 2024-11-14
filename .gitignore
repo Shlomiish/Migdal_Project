@@ -1,3 +1,4 @@
+# Ignore Terraform settings
 *.tfstate
 *.tfstate.backup
 .terraform/
