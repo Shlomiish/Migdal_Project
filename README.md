@@ -20,9 +20,12 @@ Welcome to my project! This repository contains the CI/CD pipeline for my "Hello
 ## Getting Started
 
 - **Clone the Repository**
-- `git clone`
+  `git clone https://github.com/Shlomiish/Migdal_Project.git`
+
+- **Configure AWS**
+  `aws configure`
 
 - **Run Terraform**
-- `Terraform init`
-- `Terraform plan`
-- `Terraform apply`
+  `Terraform init`
+  `Terraform plan`
+  `Terraform apply`
