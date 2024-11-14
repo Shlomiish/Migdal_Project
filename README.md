@@ -1,3 +1,5 @@
+![Description of Image](./Diagram.jpg)
+
 # CI/CD pipeline
 
 ## Description
