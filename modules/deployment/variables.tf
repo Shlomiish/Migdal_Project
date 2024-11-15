@@ -8,4 +8,16 @@ variable "app_image" {
   type        = string
 }
 
+variable "cluster_auth_token" {
+  type = string
+}
+
+variable "cluster_endpoint" {
+  type = string
+}
+
+variable "cluster_certificate_authority" {
+  type = string
+}
+
 

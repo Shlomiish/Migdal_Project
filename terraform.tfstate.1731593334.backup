@@ -1,0 +1,42 @@
+{
+  "version": 4,
+  "terraform_version": "1.6.0",
+  "serial": 987,
+  "lineage": "d225d4b7-7338-26df-d021-b79eff12f76c",
+  "outputs": {},
+  "resources": [
+    {
+      "module": "module.deployment",
+      "mode": "managed",
+      "type": "kubernetes_namespace",
+      "name": "argocd",
+      "provider": "module.deployment.provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "argocd",
+            "metadata": [
+              {
+                "annotations": {},
+                "generate_name": "",
+                "generation": 0,
+                "labels": {
+                  "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "argocd",
+                "resource_version": "74756",
+                "uid": "6ce7ada9-1e8f-469f-bad2-7d8b4e6744dd"
+              }
+            ],
+            "timeouts": null,
+            "wait_for_default_service_account": false
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ=="
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

@@ -12,9 +12,9 @@ Welcome to my project! This repository contains the CI/CD pipeline for my "Hello
   - VPC (Virtual Private Cloud): A custom network within AWS that includes subnets, route tables, and internet gateways, ensuring secure and isolated networking for the application.
   - ALB (Application Load Balancer): A load balancer that distributes incoming traffic to the EC2 instances.
   - EKS (Elastic Kubernetes Service): A managed Kubernetes service running ArgoCD and the containerized application.
-  - EC2 Instances: Virtual servers provisioned to host Jenkins, GitLab, and other services inside containers.
+  - EC2 Instances: Virtual servers provisioned to host Jenkins, Agent, and other services.
 - **AWS**: The cloud provider that provides all the cloud resources for this project.
-- **Docker**: A containerization tool that runs the application, Jenkins, GitLab, and other services inside EC2 instances.
+- **Docker**: A containerization tool that runs the application, Jenkins and other services inside EC2 instances.
 - **Jenkins**: A CI server that automates the process of building and testing the application.
 - **Gitlab**: A version control system (VCS) that provides two repositories: one for the app’s code and one for the Kubernetes manifest files.
 - **ArgoCD**: A CD server that manages deployments and tracks changes in the Kubernetes manifest files.
@@ -43,11 +43,11 @@ terraform apply
 ```
 
 - **Login to ArgoCD**
+  - The default username for ArgoCD is: admin
 
 ```
-export ARGOCD_SERVER=kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'
+aws eks update-kubeconfig --region eu-north-1 --name my-eks-cluster
 
-export ARGO_PWD=kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 
-argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 ```

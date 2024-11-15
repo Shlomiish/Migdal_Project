@@ -18,6 +18,12 @@ output "node_group_name" {
   value       = aws_eks_node_group.this.node_group_name
 }
 
-output "oidc_provider_arn" {
-  value = aws_iam_openid_connect_provider.eks.arn
+
+output "cluster_auth_token" {
+  value = data.aws_eks_cluster_auth.this.token
+}
+
+output "cluster_certificate_authority" {
+  description = "Cluster certificate authority data"
+  value       = aws_eks_cluster.this.certificate_authority[0].data
 }

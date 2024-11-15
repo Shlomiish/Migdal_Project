@@ -9,15 +9,15 @@ resource "aws_eks_cluster" "this" {
   ]
 }
 
-resource "aws_iam_openid_connect_provider" "eks" {
-  url             = aws_eks_cluster.this.identity[0].oidc[0].issuer
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
-}
+# resource "aws_iam_openid_connect_provider" "eks" {
+#   url             = aws_eks_cluster.this.identity[0].oidc[0].issuer
+#   client_id_list  = ["sts.amazonaws.com"]
+#   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+# }
 
-data "tls_certificate" "eks" {
-  url = aws_eks_cluster.this.identity[0].oidc[0].issuer
-}
+# data "tls_certificate" "eks" {
+#   url = aws_eks_cluster.this.identity[0].oidc[0].issuer
+# }
 
 
 resource "aws_eks_node_group" "this" {
@@ -88,4 +88,9 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEKS_CNI_Policy" {
 resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryReadOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_nodes.name
+}
+
+
+data "aws_eks_cluster_auth" "this" {
+  name = aws_eks_cluster.this.name
 }

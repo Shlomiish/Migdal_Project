@@ -13,7 +13,8 @@ variable "vpc_cidr" {
 variable "local_ip" {
   description = "my local IP address to allow SSH access"
   type        = string
-  default     = "213.57.121.34/32" 
+  //default     = "213.57.121.34/32" 
+  default = "147.235.218.106"
 }
 
 variable "azs" {
@@ -34,22 +35,18 @@ variable "private_subnet_cidrs" {
   default     = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
-variable "ami_list" {
+variable "ubuntu_ami" {
   description = "The AMI for the instances configuration"
-  type        = map(string)
+  type        = string
 
-  default = {
-    "ubuntu_ami" = "ami-08eb150f611ca277f"
-    "jenkins_ami" = "ami-041a017bf51b01973"
-    "gitlab_ami" = "ami-09ba1359abc8f0273"
-    "agent_ami" = "ami-0e6051ee6bbad69b7"
-  }
+  default = "ami-08eb150f611ca277f"
+   
 }
 
 variable "key_pair" {
   description = "The key pair to connect from SSH"
   type = string
-  default = "gitlabKey"
+  default = "keyPair"
 }
 
 variable "instance_type" {

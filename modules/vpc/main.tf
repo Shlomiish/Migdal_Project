@@ -67,7 +67,7 @@ resource "aws_subnet" "private_2" {
 
 
 
-//// Create Nat gateway and Elastic IP for it ////
+//// Create Nat gateway and Elastic IP ////
 
 # Elastic IP for NAT Gateway
 resource "aws_eip" "nat" {
@@ -79,7 +79,9 @@ resource "aws_eip" "nat" {
 # NAT Gateway (connected to both public subnets)
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_1.id  # You can choose either public subnet for the NAT Gateway
+  //subnet_id     = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  subnet_id     = aws_subnet.public_1.id
+
   tags = {
     Name = "MyNATGateway"
   }
