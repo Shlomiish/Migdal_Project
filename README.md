@@ -36,7 +36,6 @@ aws configure
 - **Run Terraform**
 
 ```
-aws configure
 terraform init
 terraform plan
 terraform apply
