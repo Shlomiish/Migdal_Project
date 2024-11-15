@@ -1,4 +1,4 @@
-![Description of Image](./Diagram.jpg)
+![Description of Image](./image/Diagram.jpg)
 
 # CI/CD pipeline
 

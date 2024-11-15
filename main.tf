@@ -50,8 +50,8 @@ module "eks" {
   
 }
 
-module "deployment" {
-  source = "./modules/deployment"
+module "argocd" {
+  source = "./modules/argocd"
   cluster_name = var.cluster_name
   app_image = var.app_image
   cluster_auth_token = module.eks.cluster_auth_token
