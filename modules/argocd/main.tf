@@ -14,7 +14,6 @@ provider "helm" {
 }
 
 
-# Create namespace for ArgoCD
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
@@ -67,7 +66,6 @@ resource "helm_release" "argocd" {
     value = "1Gi"
   }
 
-  # Add required labels and annotations
   set {
     name  = "global.additionalLabels.app\\.kubernetes\\.io/managed-by"
     value = "Helm"
